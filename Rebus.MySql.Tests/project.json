@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "debugType": "portable"
+  },
+  "dependencies": {
+      "Corebus" : "1.0.2",
+      "Corebus.MySql" : "1.0.0-*",
+      "MySql.Data":"7.0.6-ir31"
+  },
+  "frameworks": {
+    "netstandard1.6": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.1"
+      }
+    }
+  }
+}

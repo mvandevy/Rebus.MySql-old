@@ -305,7 +305,7 @@ namespace Rebus.MySql.Sagas
                     command.CommandText =
                         $@"
                             CREATE TABLE `{_dataTableName}` (
-                                `id` UUID NOT NULL,
+                                `id` CHAR(36) NOT NULL,
                                 `revision` INTEGER NOT NULL,
                                 `data` MEDIUMBLOB NOT NULL,
                                 PRIMARY KEY (`id`)
@@ -321,8 +321,8 @@ namespace Rebus.MySql.Sagas
                             `saga_type` TEXT NOT NULL,
                             `key` TEXT NOT NULL,
                             `value` TEXT NOT NULL,
-                            `saga_id` CHAR(16) NOT NULL,
-                            PRIMARY KEY (`key`(256), `value`(256), `saga_type`(256))
+                            `saga_id` CHAR(36) NOT NULL,
+                            PRIMARY KEY (`key`(128), `value`(128), `saga_type`(128))
                         );
 
                         CREATE INDEX `idx_{_indexTableName}` ON `{_indexTableName}` (`saga_id`);

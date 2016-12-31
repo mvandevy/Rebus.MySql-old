@@ -79,7 +79,7 @@ namespace Rebus.MySql.Timeouts
 
                         while (reader.Read())
                         {
-                            var id = (long)reader["id"];
+                            var id = (ulong)reader["id"];
                             var headers = _dictionarySerializer.DeserializeFromString((string) reader["headers"]);
                             var body = (byte[]) reader["body"];
 

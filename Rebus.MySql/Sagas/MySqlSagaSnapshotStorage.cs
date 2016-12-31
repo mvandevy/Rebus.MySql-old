@@ -69,13 +69,11 @@ namespace Rebus.MySql.Sagas
                     command.CommandText =
                         $@"
                             CREATE TABLE `{_tableName}` (
-                                `id` CHAR(16) NOT NULL,
+                                `id` CHAR(36) NOT NULL,
                                 `revision` INTEGER NOT NULL,
                                 `metadata` MEDIUMTEXT NOT NULL,
                                 `data` MEDIUMBLOB NOT NULL,
-                                PRIMARY KEY (`id`, `revision)
-                            );
-                            ";
+                                PRIMARY KEY (`id`, `revision`));";
 
                     command.ExecuteNonQuery();
                 }

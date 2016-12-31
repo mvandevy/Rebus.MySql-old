@@ -1,11 +1,11 @@
 {
-  "name":"Corebus.MySql",
+  "name":"Rebus.MySql",
   "version": "1.0.0-*",
   "buildOptions": {
     "debugType": "portable"
   },
   "dependencies": {
-    "Corebus" : "1.0.2",
+    "Rebus" : "2.2.0",
     "MySql.Data":"7.0.6-ir31"
   },
   "frameworks": {

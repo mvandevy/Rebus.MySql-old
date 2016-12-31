@@ -1,0 +1,31 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "0.1.0",
+    "command": "dotnet",
+    "isShellCommand": true,
+    "args": [],
+    "options": {
+        "env": {
+            "REBUS_MYSQL" : "server=system-center.cb04wcbjfatz.us-east-1.rds.amazonaws.com;Port=3306;database=ServiceBus; user id=root;Password=test1234;ConnectionReset=True;"
+        }
+    },
+    "tasks": [
+        {
+            "taskName": "build",
+            "args": [ ],
+            "isBuildCommand": true,
+            "showOutput": "silent",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "taskName": "test",
+            "args": [ 
+                "${workspaceRoot}/Rebus.MySql.Tests"
+            ],
+            "isTestCommand": true,
+            "showOutput": "always",
+            "problemMatcher":"$msCompile"
+        }
+    ]
+}

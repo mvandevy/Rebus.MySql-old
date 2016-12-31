@@ -12,7 +12,7 @@ namespace Rebus.MySql.Subscriptions
 {
     public class MySqlSubscriptionStorage : ISubscriptionStorage
     {
-        const string DuplicateKeyViolation = "23000";
+        const int DuplicateKeyViolation = 1062;
 
         private readonly MySqlConnectionHelper _connectionHelper;
 
@@ -75,7 +75,7 @@ namespace Rebus.MySql.Subscriptions
                 {
                     command.ExecuteNonQuery();
                 }
-                catch (MySqlException exception) when (exception.SqlState == DuplicateKeyViolation)
+                catch (MySqlException exception) when (exception.Number == DuplicateKeyViolation)
                 {
                     // it's already there
                 }

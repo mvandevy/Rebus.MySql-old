@@ -78,7 +78,8 @@ namespace Rebus.MySql.Transport
                         `body`,
                         `priority`,
                         `visible`,
-                        `expiration`
+                        `expiration`,
+                        `process_id`
                     )
                     VALUES
                     (
@@ -86,15 +87,16 @@ namespace Rebus.MySql.Transport
                         @headers,
                         @body,
                         @priority,
-                        now() + @visible,
-                        now() + @ttlseconds
-                    )";
+                        date_add(now(), INTERVAL @visible SECOND),
+                        date_add(now(), INTERVAL @ttlseconds SECOND),
+                        NULL
+                    );";
 
                 var headers = message.Headers.Clone();
 
                 var priority = GetMessagePriority(headers);
-                var initialVisibilityDelay = new TimeSpan(0, 0, 0, GetInitialVisibilityDelay(headers));
-                var ttlSeconds = new TimeSpan(0, 0, 0, GetTtlSeconds(headers));
+                var initialVisibilityDelay = GetInitialVisibilityDelay(headers);
+                var ttlSeconds = GetTtlSeconds(headers);
 
                 // must be last because the other functions on the headers might change them
                 var serializedHeaders = HeaderSerializer.Serialize(headers);
@@ -103,8 +105,8 @@ namespace Rebus.MySql.Transport
                 command.Parameters.Add(command.CreateParameter("headers", DbType.Binary, serializedHeaders));
                 command.Parameters.Add(command.CreateParameter("body", DbType.Binary, message.Body));
                 command.Parameters.Add(command.CreateParameter("priority", DbType.Int32, priority));
-                command.Parameters.Add(command.CreateParameter("visible", DbType.DateTimeOffset, initialVisibilityDelay));
-                command.Parameters.Add(command.CreateParameter("ttlseconds", DbType.DateTimeOffset, ttlSeconds));
+                command.Parameters.Add(command.CreateParameter("visible", DbType.Int32, initialVisibilityDelay));
+                command.Parameters.Add(command.CreateParameter("ttlseconds", DbType.Int32, ttlSeconds));
 
                 await command.ExecuteNonQueryAsync();
             }
@@ -121,23 +123,14 @@ namespace Rebus.MySql.Transport
                 using (var selectCommand = connection.CreateCommand())
                 {
                     selectCommand.CommandText = $@"
-                        DELETE from `{_tableName}`
-                        where id =
-                        (
-                            select `id` from (
-                                select `id` from `{_tableName}`
-                                where `recipient` = @recipient
-                                and `visible` < NOW()
-                                and `expiration` > NOW()
-                                order by `priority` asc, `id` asc
-                                limit 1
-                            ) as ids
-                        )
-                        returning id,
-                        headers,
-                        body;";
+start transaction;
+UPDATE {_tableName} SET process_id = @processId WHERE recipient = @recipient AND `visible` < now() AND `expiration` > now() AND process_id IS NULL ORDER BY `priority` ASC, `id` ASC LIMIT 1;
+SELECT `id`, `headers`, `body` FROM {_tableName} WHERE process_id = @processId ORDER BY ID LIMIT 1;
+DELETE FROM {_tableName} WHERE process_id = @processId;
+commit;";
 
                     selectCommand.Parameters.Add(selectCommand.CreateParameter("recipient", DbType.String, _inputQueueName));
+                    selectCommand.Parameters.Add(selectCommand.CreateParameter("processId", DbType.Guid, Guid.NewGuid()));
 
                     try
                     {
@@ -210,20 +203,23 @@ namespace Rebus.MySql.Transport
                     CREATE TABLE {_tableName}
                     (
                         `id` INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-                        `recipient` TEXT NOT NULL,
+                        `recipient` VARCHAR(200) CHARACTER SET UTF8 NOT NULL,
                         `priority` INT NOT NULL,
                         `expiration` DATETIME NOT NULL,
                         `visible` DATETIME NOT NULL,
-                        `headers` TEXT NOT NULL,
+                        `headers` MEDIUMBLOB NOT NULL,
                         `body` MEDIUMBLOB NOT NULL,
-                        PRIMARY KEY (`recipient`(256), `priority`, `id`)
+                        `process_id` CHAR(36) NULL,
+                        PRIMARY KEY (`recipient`(128), `priority`, `id`)
                     );
                     ----
                     CREATE INDEX `idx_receive_{_tableName}` ON `{_tableName}`
                     (
-                        `recipient` ASC,
+                        `recipient`(128) ASC,
+                        `priority` ASC,
+                        `visible` ASC,
                         `expiration` ASC,
-                        `visible` ASC
+                        `id` ASC
                     );");
 
                 connection.Complete();

@@ -23,7 +23,8 @@ namespace Rebus.MySql.Tests.Transport
         private CancellationToken _cancellationToken;
         private const string QueueName = "input";
 
-        protected override void SetUp()
+        [SetUp]
+        protected void SetUp()
         {
             MySqlTestHelper.DropTable(_tableName);
             var consoleLoggerFactory = new ConsoleLoggerFactory(false);
@@ -91,7 +92,7 @@ namespace Rebus.MySql.Tests.Transport
         }
 
 
-        [TestCase(1000)]
+        [TestCase(10)]
         public async Task LotsOfAsyncStuffGoingDown(int numberOfMessages)
         {
             var receivedMessages = 0;

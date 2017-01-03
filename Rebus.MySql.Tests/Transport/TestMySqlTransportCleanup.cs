@@ -21,7 +21,8 @@ namespace Rebus.MySql.Tests.Transport
             BuiltinHandlerActivator _activator;
             ListLoggerFactory _loggerFactory;
 
-            protected override void SetUp()
+            [SetUp]
+            protected void SetUp()
             {
                 var queueName = TestConfig.GetName("connection_timeout");
 

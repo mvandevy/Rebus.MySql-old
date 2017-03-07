@@ -49,7 +49,7 @@ namespace Rebus.MySql.Transport
             ExpiredMessagesCleanupInterval = DefaultExpiredMessagesCleanupInterval;
             _expiredMessagesCleanupTask = asyncTaskFactory.Create("ExpiredMessagesCleanup",
                 PerformExpiredMessagesCleanupCycle, intervalSeconds: 60);
-            _log = rebusLoggerFactory.GetCurrentClassLogger();
+            _log = rebusLoggerFactory.GetLogger<MySqlTransport>();
         }
 
         public void Initialize()

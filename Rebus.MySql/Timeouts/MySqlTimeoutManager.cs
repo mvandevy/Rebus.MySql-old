@@ -27,7 +27,7 @@ namespace Rebus.MySql.Timeouts
             if (rebusLoggerFactory == null) throw new ArgumentNullException(nameof(rebusLoggerFactory));
             _connectionHelper = connectionHelper;
             _tableName = tableName;
-            _log = rebusLoggerFactory.GetCurrentClassLogger();
+            _log = rebusLoggerFactory.GetLogger<MySqlTimeoutManager>();
         }
 
         /// <summary>

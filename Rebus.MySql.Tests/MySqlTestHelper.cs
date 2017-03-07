@@ -39,7 +39,8 @@ namespace Rebus.MySql.Tests
         static string GetConnectionStringForDatabase(string databaseName)
         {
             return Environment.GetEnvironmentVariable("REBUS_MYSQL")
-                ?? $"server=localhost; database={databaseName}; user id=mysql; password=mysql;maximum pool size=30;";
+//                ?? $"server=localhost; database={databaseName}; user id=mysql; password=mysql;maximum pool size=30;";
+                   ?? $"Server=system-center.cb04wcbjfatz.us-east-1.rds.amazonaws.com;Port=3306;Database=ServiceBus;User Id=root;Password=test1234;ConnectionReset=True;";
         }
     }
 }

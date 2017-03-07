@@ -30,7 +30,7 @@ namespace Rebus.MySql.Subscriptions
             _connectionHelper = connectionHelper;
             _tableName = tableName;
             IsCentralized = isCentralized;
-            _log = rebusLoggerFactory.GetCurrentClassLogger();
+            _log = rebusLoggerFactory.GetLogger<MySqlSubscriptionStorage>();
         }
 
         /// <summary>

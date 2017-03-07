@@ -40,7 +40,7 @@ namespace Rebus.MySql.Sagas
             _connectionHelper = connectionHelper;
             _dataTableName = dataTableName;
             _indexTableName = indexTableName;
-            _log = rebusLoggerFactory.GetCurrentClassLogger();
+            _log = rebusLoggerFactory.GetLogger<MySqlSagaStorage>();
         }
 
         /// <summary>

@@ -21,7 +21,7 @@ namespace Rebus.MySql.Tests.Subscriptions
 
         public void Cleanup()
         {
-            MySqlTestHelper.DropTable("subscriptions");
+            MySqlTestHelper.DropTableIfExists("subscriptions");
         }
     }
 }

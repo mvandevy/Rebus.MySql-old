@@ -33,7 +33,7 @@ namespace Rebus.MySql
 
                 if (automaticallyCreateTables)
                 {
-                    subscriptionStorage.EnsureTableIsCreated();
+                    subscriptionStorage.EnsureTableIsCreated().RunSynchronously();
                 }
 
                 return subscriptionStorage;

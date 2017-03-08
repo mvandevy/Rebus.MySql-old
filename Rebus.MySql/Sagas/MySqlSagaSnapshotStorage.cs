@@ -30,7 +30,7 @@ namespace Rebus.MySql.Sagas
 
         public async Task Save(ISagaData sagaData, Dictionary<string, string> sagaAuditMetadata)
         {
-            using (var connection = await _connectionHelper.GetConnection())
+            using (var connection = _connectionHelper.GetConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
@@ -58,7 +58,7 @@ namespace Rebus.MySql.Sagas
         /// </summary>
         public void EnsureTableIsCreated()
         {
-            using (var connection = _connectionHelper.GetConnection().Result)
+            using (var connection = _connectionHelper.GetConnection())
             {
                 var tableNames = connection.GetTableNames().ToHashSet();
 

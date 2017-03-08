@@ -26,9 +26,9 @@ namespace Rebus.MySql.Tests.Transport
         static readonly string TableName = TestConfig.GetName("Messages");
 
         [SetUp]
-        protected void SetUp()
+        protected override void SetUp()
         {
-            MySqlTestHelper.DropTable(TableName);
+            MySqlTestHelper.DropTableIfExists(TableName);
 
             _adapter = Using(new BuiltinHandlerActivator());
 

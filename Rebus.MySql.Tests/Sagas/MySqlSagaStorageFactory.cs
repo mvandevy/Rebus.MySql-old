@@ -9,8 +9,8 @@ namespace Rebus.MySql.Tests.Sagas
     {
         public MySqlSagaStorageFactory()
         {
-            MySqlTestHelper.DropTable("saga_index");
-            MySqlTestHelper.DropTable("saga_data");
+            MySqlTestHelper.DropTableIfExists("saga_index");
+            MySqlTestHelper.DropTableIfExists("saga_data");
         }
 
         public ISagaStorage GetSagaStorage()
@@ -22,8 +22,8 @@ namespace Rebus.MySql.Tests.Sagas
 
         public void CleanUp()
         {
-            //MySqlTestHelper.DropTable("saga_index");
-            //MySqlTestHelper.DropTable("saga_data");
+            //MySqlTestHelper.DropTableIfExists("saga_index");
+            //MySqlTestHelper.DropTableIfExists("saga_data");
         }
     }
 }

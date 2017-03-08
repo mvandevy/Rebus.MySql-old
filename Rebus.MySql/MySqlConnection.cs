@@ -40,7 +40,7 @@ namespace Rebus.MySql
         /// Completes the transaction
         /// </summary>
 
-        public async Task Complete()
+        public void Complete()
         {
             if (_currentTransaction == null) return;
             using (_currentTransaction)

@@ -15,7 +15,7 @@ namespace Rebus.MySql.Tests.Timeouts
     {
         public MySqlTimeoutManagerFactory()
         {
-            MySqlTestHelper.DropTable("timeouts");
+            //MySqlTestHelper.DropTableIfExists("timeouts");
         }
 
         public ITimeoutManager Create()
@@ -27,7 +27,7 @@ namespace Rebus.MySql.Tests.Timeouts
 
         public void Cleanup()
         {
-            MySqlTestHelper.DropTable("timeouts");
+            MySqlTestHelper.DropTableIfExists("timeouts");
         }
 
         public string GetDebugInfo()

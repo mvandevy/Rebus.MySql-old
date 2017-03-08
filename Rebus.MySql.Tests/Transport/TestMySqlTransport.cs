@@ -24,9 +24,9 @@ namespace Rebus.MySql.Tests.Transport
         private const string QueueName = "input";
 
         [SetUp]
-        protected void SetUp()
+        protected override void SetUp()
         {
-            MySqlTestHelper.DropTable(_tableName);
+            MySqlTestHelper.DropTableIfExists(_tableName);
             var consoleLoggerFactory = new ConsoleLoggerFactory(false);
             var asyncTaskFactory = new TplAsyncTaskFactory(consoleLoggerFactory);
             var connectionHelper = new MySqlConnectionHelper(MySqlTestHelper.ConnectionString);

@@ -38,15 +38,15 @@ namespace Rebus.MySql.Subscriptions
         /// </summary>
         public async Task<string[]> GetSubscriberAddresses(string topic)
         {
-            using (var connection = await _connectionHelper.GetConnection())
+            using (var connection = _connectionHelper.GetConnection())
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = $@"select `address` from `{_tableName}` where `topic` = @topic";
                 command.Parameters.Add(command.CreateParameter("topic", DbType.String, topic));
 
                 var endpoints = new List<string>();
-
-                using (var reader = command.ExecuteReader())
+                
+                using (var reader = await command.ExecuteReaderAsync())
                 {
                     while (reader.Read())
                     {
@@ -63,7 +63,7 @@ namespace Rebus.MySql.Subscriptions
         /// </summary>
         public async Task RegisterSubscriber(string topic, string subscriberAddress)
         {
-            using (var connection = await _connectionHelper.GetConnection())
+            using (var connection = _connectionHelper.GetConnection())
             using (var command = connection.CreateCommand())
             {
                 command.CommandText =
@@ -73,7 +73,7 @@ namespace Rebus.MySql.Subscriptions
 
                 try
                 {
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
                 catch (MySqlException exception) when (exception.Number == DuplicateKeyViolation)
                 {
@@ -89,7 +89,7 @@ namespace Rebus.MySql.Subscriptions
         /// </summary>
         public async Task UnregisterSubscriber(string topic, string subscriberAddress)
         {
-            using (var connection = await _connectionHelper.GetConnection())
+            using (var connection = _connectionHelper.GetConnection())
             using (var command = connection.CreateCommand())
             {
                 command.CommandText =
@@ -100,7 +100,7 @@ namespace Rebus.MySql.Subscriptions
 
                 try
                 {
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
                 catch (MySqlException exception)
                 {
@@ -116,9 +116,9 @@ namespace Rebus.MySql.Subscriptions
         /// <summary>
         /// Creates the subscriptions table if no table with the specified name exists
         /// </summary>
-        public void EnsureTableIsCreated()
+        public async Task EnsureTableIsCreated()
         {
-            using (var connection = _connectionHelper.GetConnection().Result)
+            using (var connection = _connectionHelper.GetConnection())
             {
                 var tableNames = connection.GetTableNames().ToHashSet();
 
@@ -135,7 +135,7 @@ namespace Rebus.MySql.Subscriptions
                                 `address` VARCHAR(200) NOT NULL,
                                 PRIMARY KEY (`topic`, `address`)
                             );";
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
 
                 connection.Complete();

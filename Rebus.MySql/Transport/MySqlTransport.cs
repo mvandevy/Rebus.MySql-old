@@ -66,7 +66,7 @@ namespace Rebus.MySql.Transport
 
         public async Task Send(string destinationAddress, TransportMessage message, ITransactionContext context)
         {
-            var connection = await GetConnection(context);
+            var connection = GetConnection(context);
 
             using (var command = connection.CreateCommand())
             {
@@ -116,18 +116,16 @@ namespace Rebus.MySql.Transport
         {
             using (await _bottleneck.Enter(cancellationToken))
             {
-                var connection = await GetConnection(context);
+                var connection = GetConnection(context);
 
                 TransportMessage receivedTransportMessage;
 
                 using (var selectCommand = connection.CreateCommand())
                 {
                     selectCommand.CommandText = $@"
-start transaction;
 UPDATE {_tableName} SET process_id = @processId WHERE recipient = @recipient AND `visible` < now() AND `expiration` > now() AND process_id IS NULL ORDER BY `priority` ASC, `id` ASC LIMIT 1;
 SELECT `id`, `headers`, `body` FROM {_tableName} WHERE process_id = @processId ORDER BY ID LIMIT 1;
-DELETE FROM {_tableName} WHERE process_id = @processId;
-commit;";
+DELETE FROM {_tableName} WHERE process_id = @processId;";
 
                     selectCommand.Parameters.Add(selectCommand.CreateParameter("recipient", DbType.String, _inputQueueName));
                     selectCommand.Parameters.Add(selectCommand.CreateParameter("processId", DbType.Guid, Guid.NewGuid()));
@@ -187,7 +185,7 @@ commit;";
 
         private void CreateSchema()
         {
-            using (var connection = _connectionHelper.GetConnection().Result)
+            using (var connection = _connectionHelper.GetConnection())
             {
                 var tableNames = connection.GetTableNames();
 
@@ -259,7 +257,7 @@ commit;";
 
             while (true)
             {
-                using (var connection = await _connectionHelper.GetConnection())
+                using (var connection = _connectionHelper.GetConnection())
                 {
                     int affectedRows;
 
@@ -289,14 +287,14 @@ commit;";
             }
         }
 
-        Task<MySqlConnection> GetConnection(ITransactionContext context)
+        MySqlConnection GetConnection(ITransactionContext context)
         {
             return context
                 .GetOrAdd(CurrentConnectionKey,
-                    async () =>
+                    () =>
                     {
-                        var dbConnection = await _connectionHelper.GetConnection();
-                        context.OnCommitted(async () => await dbConnection.Complete());
+                        var dbConnection = _connectionHelper.GetConnection();
+                        context.OnCommitted(async () => dbConnection.Complete());
                         context.OnDisposed(() =>
                         {
                             dbConnection.Dispose();
@@ -326,7 +324,7 @@ commit;";
 
             if (!headers.TryGetValue(Headers.DeferredUntil, out deferredUntilDateTimeOffsetString))
             {
-                return 0;
+                return -1;
             }
 
             var deferredUntilTime = deferredUntilDateTimeOffsetString.ToDateTimeOffset();

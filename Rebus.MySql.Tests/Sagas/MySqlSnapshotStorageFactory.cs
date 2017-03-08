@@ -13,7 +13,7 @@ namespace Rebus.MySql.Tests.Sagas
 
         public MySqlSnapshotStorageFactory()
         {
-            MySqlTestHelper.DropTable(TableName);
+            MySqlTestHelper.DropTableIfExists(TableName);
         }
 
         public ISagaSnapshotStorage Create()
@@ -27,7 +27,7 @@ namespace Rebus.MySql.Tests.Sagas
 
         public IEnumerable<SagaDataSnapshot> GetAllSnapshots()
         {
-            using (var connection = MySqlTestHelper.ConnectionHelper.GetConnection().Result)
+            using (var connection = MySqlTestHelper.ConnectionHelper.GetConnection())
             {
                 using (var command = connection.CreateCommand())
                 {

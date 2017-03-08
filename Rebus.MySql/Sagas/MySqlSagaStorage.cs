@@ -49,7 +49,7 @@ namespace Rebus.MySql.Sagas
         /// </summary>
         public async Task<ISagaData> Find(Type sagaDataType, string propertyName, object propertyValue)
         {
-            using (var connection = await _connectionHelper.GetConnection())
+            using (var connection = _connectionHelper.GetConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
@@ -77,7 +77,7 @@ namespace Rebus.MySql.Sagas
                         command.Parameters.Add(command.CreateParameter("value", DbType.String, (propertyValue ?? "").ToString()));
                     }
 
-                    var data = (byte[]) command.ExecuteScalar();
+                    var data = (byte[]) await command.ExecuteScalarAsync();
 
                     if (data == null) return null;
 
@@ -123,7 +123,7 @@ namespace Rebus.MySql.Sagas
                 throw new InvalidOperationException($"Attempted to insert saga data with ID {sagaData.Id} and revision {sagaData.Revision}, but revision must be 0 on first insert!");
             }
 
-            using (var connection = await _connectionHelper.GetConnection())
+            using (var connection = _connectionHelper.GetConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
@@ -141,7 +141,7 @@ namespace Rebus.MySql.Sagas
 
                     try
                     {
-                        command.ExecuteNonQuery();
+                        await command.ExecuteNonQueryAsync();
                     }
                     catch (MySqlException exception)
                     {
@@ -168,7 +168,7 @@ namespace Rebus.MySql.Sagas
         /// </summary>
         public async Task Update(ISagaData sagaData, IEnumerable<ISagaCorrelationProperty> correlationProperties)
         {
-            using (var connection = await _connectionHelper.GetConnection())
+            using (var connection = _connectionHelper.GetConnection())
             {
                 var revisionToUpdate = sagaData.Revision;
 
@@ -227,7 +227,7 @@ namespace Rebus.MySql.Sagas
         /// </summary>
         public async Task Delete(ISagaData sagaData)
         {
-            using (var connection = await _connectionHelper.GetConnection())
+            using (var connection = _connectionHelper.GetConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
@@ -274,7 +274,7 @@ namespace Rebus.MySql.Sagas
         /// </summary>
         public void EnsureTablesAreCreated()
         {
-            using (var connection = _connectionHelper.GetConnection().Result)
+            using (var connection = _connectionHelper.GetConnection())
             {
                 var tableNames = connection.GetTableNames().ToHashSet();
 

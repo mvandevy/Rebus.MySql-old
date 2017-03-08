@@ -35,18 +35,18 @@ namespace Rebus.MySql.Timeouts
         /// </summary>
         public async Task Defer(DateTimeOffset approximateDueTime, Dictionary<string, string> headers, byte[] body)
         {
-            using (var connection = await _connectionHelper.GetConnection())
+            using (var connection = _connectionHelper.GetConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText =
                         $@"INSERT INTO `{_tableName}` (`due_time`, `headers`, `body`) VALUES (@due_time, @headers, @body)";
 
-                    command.Parameters.Add(command.CreateParameter("due_time", DbType.DateTime, approximateDueTime.ToUniversalTime().DateTime));
+                    command.Parameters.Add(command.CreateParameter("due_time", DbType.DateTime, approximateDueTime.ToUniversalTime().DateTime.AddSeconds(-1)));
                     command.Parameters.Add(command.CreateParameter("headers", DbType.String, _dictionarySerializer.SerializeToString(headers)));
                     command.Parameters.Add(command.CreateParameter("body", DbType.Binary, body));
 
-                    await command.ExecuteNonQueryAsync();
+                    await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
 
                 connection.Complete();
@@ -58,7 +58,7 @@ namespace Rebus.MySql.Timeouts
         /// </summary>
         public async Task<DueMessagesResult> GetDueMessages()
         {
-            var connection = await _connectionHelper.GetConnection();
+            var connection = _connectionHelper.GetConnection();
 
             try
             {
@@ -114,7 +114,7 @@ namespace Rebus.MySql.Timeouts
         /// </summary>
         public void EnsureTableIsCreated()
         {
-            using (var connection = _connectionHelper.GetConnection().Result)
+            using (var connection = _connectionHelper.GetConnection())
             {
                 var tableNames = connection.GetTableNames();
 

@@ -41,8 +41,8 @@
     <DefineConstants>NETSTANDARD1_6</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="7.0.6-IR31-syx" />
     <PackageReference Include="Rebus" Version="3.2.0" />
-    <PackageReference Include="MySql.Data" Version="6.10.1-beta" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
     <Reference Include="System" />

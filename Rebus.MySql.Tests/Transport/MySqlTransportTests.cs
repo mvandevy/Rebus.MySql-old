@@ -67,7 +67,11 @@ namespace Rebus.MySql.Tests.Transport
             _disposables.ForEach(d => d.Dispose());
             _disposables.Clear();
 
-            _tablesToDrop.ForEach(MySqlTestHelper.DropTable);
+            foreach (var tableToDrop in _tablesToDrop)
+            {
+                MySqlTestHelper.DropTableIfExists(tableToDrop);
+            }
+
             _tablesToDrop.Clear();
         }
     }

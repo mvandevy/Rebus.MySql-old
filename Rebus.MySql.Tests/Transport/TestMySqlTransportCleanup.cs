@@ -22,7 +22,7 @@ namespace Rebus.MySql.Tests.Transport
             ListLoggerFactory _loggerFactory;
 
             [SetUp]
-            protected void SetUp()
+            protected override void SetUp()
             {
                 var queueName = TestConfig.GetName("connection_timeout");
 

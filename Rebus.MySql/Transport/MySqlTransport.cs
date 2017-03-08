@@ -66,7 +66,7 @@ namespace Rebus.MySql.Transport
 
         public async Task Send(string destinationAddress, TransportMessage message, ITransactionContext context)
         {
-            var connection = GetConnection(context);
+            var connection = await GetConnection(context);
 
             using (var command = connection.CreateCommand())
             {
@@ -116,7 +116,7 @@ namespace Rebus.MySql.Transport
         {
             using (await _bottleneck.Enter(cancellationToken))
             {
-                var connection = GetConnection(context);
+                var connection = await GetConnection(context);
 
                 TransportMessage receivedTransportMessage;
 
@@ -183,9 +183,9 @@ DELETE FROM {_tableName} WHERE process_id = @processId;";
             }
         }
 
-        private void CreateSchema()
+        private async Task CreateSchema()
         {
-            using (var connection = _connectionHelper.GetConnection())
+            using (var connection = await _connectionHelper.GetConnection())
             {
                 var tableNames = connection.GetTableNames();
 
@@ -257,7 +257,7 @@ DELETE FROM {_tableName} WHERE process_id = @processId;";
 
             while (true)
             {
-                using (var connection = _connectionHelper.GetConnection())
+                using (var connection = await _connectionHelper.GetConnection())
                 {
                     int affectedRows;
 
@@ -287,14 +287,15 @@ DELETE FROM {_tableName} WHERE process_id = @processId;";
             }
         }
 
-        MySqlConnection GetConnection(ITransactionContext context)
+        async Task<MySqlConnection> GetConnection(ITransactionContext context)
         {
             return context
-                .GetOrAdd(CurrentConnectionKey,
-                    () =>
+                .GetOrAdd(CurrentConnectionKey, () =>
                     {
-                        var dbConnection = _connectionHelper.GetConnection();
+                        var dbConnection =  _connectionHelper.GetConnection().Result;
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
                         context.OnCommitted(async () => dbConnection.Complete());
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
                         context.OnDisposed(() =>
                         {
                             dbConnection.Dispose();

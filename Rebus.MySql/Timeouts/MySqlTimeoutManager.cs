@@ -35,7 +35,7 @@ namespace Rebus.MySql.Timeouts
         /// </summary>
         public async Task Defer(DateTimeOffset approximateDueTime, Dictionary<string, string> headers, byte[] body)
         {
-            using (var connection = _connectionHelper.GetConnection())
+            using (var connection = await _connectionHelper.GetConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
@@ -58,7 +58,7 @@ namespace Rebus.MySql.Timeouts
         /// </summary>
         public async Task<DueMessagesResult> GetDueMessages()
         {
-            var connection = _connectionHelper.GetConnection();
+            var connection = await _connectionHelper.GetConnection();
 
             try
             {
@@ -112,9 +112,9 @@ namespace Rebus.MySql.Timeouts
         /// <summary>
         /// Checks if the configured timeouts table exists - if it doesn't, it will be created.
         /// </summary>
-        public void EnsureTableIsCreated()
+        public async Task EnsureTableIsCreated()
         {
-            using (var connection = _connectionHelper.GetConnection())
+            using (var connection = await _connectionHelper.GetConnection())
             {
                 var tableNames = connection.GetTableNames();
 

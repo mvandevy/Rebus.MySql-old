@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using Rebus.Tests.Contracts;
 
@@ -12,9 +13,9 @@ namespace Rebus.MySql.Tests
         public static string ConnectionString => GetConnectionStringForDatabase(DatabaseName);
         public static MySqlConnectionHelper ConnectionHelper => MySqlConnectionHelper;
 
-        public static void DropTableIfExists(string tableName)
+        public static async Task DropTableIfExists(string tableName)
         {
-            using (var connection = MySqlConnectionHelper.GetConnection())
+            using (var connection = await MySqlConnectionHelper.GetConnection())
             {
                 using (var comand = connection.CreateCommand())
                 {

@@ -49,7 +49,7 @@ namespace Rebus.MySql.Sagas
         /// </summary>
         public async Task<ISagaData> Find(Type sagaDataType, string propertyName, object propertyValue)
         {
-            using (var connection = _connectionHelper.GetConnection())
+            using (var connection = await _connectionHelper.GetConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
@@ -123,7 +123,7 @@ namespace Rebus.MySql.Sagas
                 throw new InvalidOperationException($"Attempted to insert saga data with ID {sagaData.Id} and revision {sagaData.Revision}, but revision must be 0 on first insert!");
             }
 
-            using (var connection = _connectionHelper.GetConnection())
+            using (var connection = await _connectionHelper.GetConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
@@ -168,7 +168,7 @@ namespace Rebus.MySql.Sagas
         /// </summary>
         public async Task Update(ISagaData sagaData, IEnumerable<ISagaCorrelationProperty> correlationProperties)
         {
-            using (var connection = _connectionHelper.GetConnection())
+            using (var connection = await _connectionHelper.GetConnection())
             {
                 var revisionToUpdate = sagaData.Revision;
 
@@ -227,7 +227,7 @@ namespace Rebus.MySql.Sagas
         /// </summary>
         public async Task Delete(ISagaData sagaData)
         {
-            using (var connection = _connectionHelper.GetConnection())
+            using (var connection = await _connectionHelper.GetConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
@@ -272,9 +272,9 @@ namespace Rebus.MySql.Sagas
         /// Checks to see if the configured saga data and saga index table exists. If they both exist, we'll continue, if
         /// neigther of them exists, we'll try to create them. If one of them exists, we'll throw an error.
         /// </summary>
-        public void EnsureTablesAreCreated()
+        public async Task EnsureTablesAreCreated()
         {
-            using (var connection = _connectionHelper.GetConnection())
+            using (var connection = await _connectionHelper.GetConnection())
             {
                 var tableNames = connection.GetTableNames().ToHashSet();
 
@@ -328,7 +328,7 @@ namespace Rebus.MySql.Sagas
                         CREATE INDEX `idx_{_indexTableName}` ON `{_indexTableName}` (`saga_id`);
                         ";
 
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
 
                 connection.Complete();

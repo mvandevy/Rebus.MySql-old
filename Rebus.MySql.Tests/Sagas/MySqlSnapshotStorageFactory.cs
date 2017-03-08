@@ -27,7 +27,7 @@ namespace Rebus.MySql.Tests.Sagas
 
         public IEnumerable<SagaDataSnapshot> GetAllSnapshots()
         {
-            using (var connection = MySqlTestHelper.ConnectionHelper.GetConnection())
+            using (var connection = MySqlTestHelper.ConnectionHelper.GetConnection().Result)
             {
                 using (var command = connection.CreateCommand())
                 {

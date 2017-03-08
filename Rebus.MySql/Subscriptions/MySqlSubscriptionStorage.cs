@@ -38,7 +38,7 @@ namespace Rebus.MySql.Subscriptions
         /// </summary>
         public async Task<string[]> GetSubscriberAddresses(string topic)
         {
-            using (var connection = _connectionHelper.GetConnection())
+            using (var connection = await _connectionHelper.GetConnection())
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = $@"select `address` from `{_tableName}` where `topic` = @topic";
@@ -63,7 +63,7 @@ namespace Rebus.MySql.Subscriptions
         /// </summary>
         public async Task RegisterSubscriber(string topic, string subscriberAddress)
         {
-            using (var connection = _connectionHelper.GetConnection())
+            using (var connection = await _connectionHelper.GetConnection())
             using (var command = connection.CreateCommand())
             {
                 command.CommandText =
@@ -89,7 +89,7 @@ namespace Rebus.MySql.Subscriptions
         /// </summary>
         public async Task UnregisterSubscriber(string topic, string subscriberAddress)
         {
-            using (var connection = _connectionHelper.GetConnection())
+            using (var connection = await _connectionHelper.GetConnection())
             using (var command = connection.CreateCommand())
             {
                 command.CommandText =
@@ -118,7 +118,7 @@ namespace Rebus.MySql.Subscriptions
         /// </summary>
         public async Task EnsureTableIsCreated()
         {
-            using (var connection = _connectionHelper.GetConnection())
+            using (var connection = await _connectionHelper.GetConnection())
             {
                 var tableNames = connection.GetTableNames().ToHashSet();
 
